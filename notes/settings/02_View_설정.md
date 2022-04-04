@@ -72,8 +72,5 @@ Hello
 ## spring-boot-devtools
  개발 시 편리한 기능을 담고 있는 라이브러리인데, 템플릿 작성 시 리로딩을 지원해서 편하다.
 
-* `build.gradle` 설정 추가
-```java
- 
-```
+* `build.gradle` 설정 추가: `implementation 'org.springframework.boot:spring-boot-devtools'`
 * 이후 소스 변경 시 `build` > `recompile`
