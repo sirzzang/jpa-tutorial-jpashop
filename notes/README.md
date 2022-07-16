@@ -4,6 +4,7 @@
     - [h2 database cheatsheet](http://www.h2database.com/html/cheatSheet.html)
 * [도메인 분석 설계](domain-design/)
 
+* `resource/static`: bootstrap css, js 복사
 
 ## TODO
 - 왜 id는 `Long` 형으로 사용하는가?: https://www.inflearn.com/questions/63889

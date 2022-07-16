@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- 헤더 대체 -->
+<head th:replace="fragments/header :: header" />
+<style>
+      .fieldError {
+          border-color: #bd2130;
+} </style>
+<body>
+<div class="container">
+    <!-- bodyHeader import-->
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+
+
+    <!-- 서버로 넘어갈 form
+    1. MemberController에서 "memberForm" 이름으로 넘어 온 MemberForm 객체의 데이터에 접근 가능
+    2. form 전송 시 /members/new로 MemberForm과 함께 넘김 -->
+    <form role="form" action="/members/new" th:object="${memberForm}"
+          method="post">
+        <div class="form-group">
+            <label th:for="name">이름</label>
+            <!-- *: object 참고하므로, memberForm.name property에 getter, setter로 접근 -->
+            <input type="text" th:field="*{name}" class="form-control" placeholder="이름을 입력하세요"
+                   th:class="${#fields.hasErrors('name')}? 'form-control
+  fieldError' : 'form-control'">
+
+            <!-- 만약 'name' 필드에 오류 있다면, 스타일 변경 및 다음의 p 태그 렌더링
+            1. fieldError style 적용
+            2. `name` 필드 에러 메시지 나옴
+            3. 기본 텍스트인 Incorrect date는 어차피 오류 없을 때 안 보여지므로 상관 없음 -->
+            <p th:if="${#fields.hasErrors('name')}"
+               th:errors="*{name}">Incorrect date</p>
+        </div>
+        <div class="form-group">
+            <label th:for="city">도시</label>
+            <!-- th:field로 id, class 생성 -->
+            <input type="text" th:field="*{city}" class="form-control"
+
+                   placeholder="도시를 입력하세요"> </div>
+        <div class="form-group">
+            <label th:for="street">거리</label>
+            <input type="text" th:field="*{street}" class="form-control" placeholder="거리를 입력하세요">
+        </div>
+        <div class="form-group">
+            <label th:for="zipcode">우편번호</label>
+            <input type="text" th:field="*{zipcode}" class="form-control"
+                   placeholder="우편번호를 입력하세요"> </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br/>
+    <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+</body>
+</html>

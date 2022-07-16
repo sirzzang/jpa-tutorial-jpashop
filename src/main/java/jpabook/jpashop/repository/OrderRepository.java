@@ -23,6 +23,7 @@ public class OrderRepository {
         em.persist(order);
     }
 
+
     // 주문 딘건 조회
     public Order findOne(Long id) {
         return em.find(Order.class, id);
