@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -49,6 +50,19 @@ public class MemberController {
 
         return "redirect:/"; // 저장 후 redirect 쓰는 것이 좋음
 
+    }
+
+    @GetMapping("/members")
+    public String list(Model model) {
+        /**
+         * TODO
+         * - API를 만들 때는 절대로 엔티티를 반환하면 안 됨
+         * - 템플릿 엔진일 때는 서버 사이드에서 어차피 처리되기 때문에,
+         * - 예제에서와 달리 엔티티 리스트 그대로 반환하기 보다 DTO 만들기를 추천
+         */
+        List<Member> members = memberService.findMembers();
+        model.addAttribute("members", members);
+        return "members/memberList";
     }
 
 }
