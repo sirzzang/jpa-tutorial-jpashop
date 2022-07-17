@@ -68,18 +68,35 @@ public class ItemController {
     }
 
     @PostMapping("/items/{itemId}/edit")
-    public String updateItem(@ModelAttribute("form") BookForm form) {
-        Book book = new Book();
+    public String updateItem(@PathVariable Long itemId, @ModelAttribute("form") BookForm form) {
 
-        // TODO: 아이템 수정 권한 있는지 체크
-        book.setId(form.getId());
-        book.setName(form.getName());
-        book.setPrice(form.getPrice());
-        book.setStockQuantity(form.getStockQuantity());
-        book.setAuthor(form.getAuthor());
-        book.setIsbn(form.getIsbn());
 
-        itemService.saveItem(book);
+
+        // 필요한 데이터만 받아서 수정하는 것이 더 나은 설계
+        itemService.updateItem(itemId,
+                form.getName(), form.getPrice(), form.getStockQuantity());
+
+        /**
+         * 준영속 엔티티
+         * - 수정을 위해 만드는 {@code Book} 엔티티는 준영속 엔티티임
+         * - 임의로 만들어진 엔티티이지만, 영속된 적이 있고, JPA가 관리하는 식별자가 있음
+         * - 영속성 컨텍스트가 더 이상 관리하지 않음
+         * - 참고: {@code ItemUpdateTest.java}
+         */
+
+        // FIX: 좋은 설계가 아님
+
+//        Book book = new Book();
+//
+//        // TODO: 아이템 수정 권한 있는지 체크
+//        book.setId(form.getId());
+//        book.setName(form.getName());
+//        book.setPrice(form.getPrice());
+//        book.setStockQuantity(form.getStockQuantity());
+//        book.setAuthor(form.getAuthor());
+//        book.setIsbn(form.getIsbn());
+//
+//        itemService.saveItem(book);
         return "redirect:/items";
     }
 }

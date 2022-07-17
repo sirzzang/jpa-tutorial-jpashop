@@ -18,8 +18,15 @@ public class ItemRepository {
         if (item.getId() == null) {
             em.persist(item);
         } else {
-            // 이미 영속되어 있거나, 다른 곳에서 가져왔을 경우
+            // 준영속 엔티티
+            /**
+             * - 이미 영속되어 있거나, 다른 곳에서 가져왔을 경우
+             * - merge의 반환 값은 영속성 컨텍스트로 관리됨
+             *   그러나 merge의 파라미터는 영속성 컨텍스트로 관리되지 않음
+             * - merge 시 모든 속성이 변경되므로, null로 저장될 수도 있음
+             */
             em.merge(item);
+
         }
     }
 
