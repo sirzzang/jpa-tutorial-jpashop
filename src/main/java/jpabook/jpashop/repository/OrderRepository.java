@@ -1,9 +1,11 @@
 package jpabook.jpashop.repository;
 
+import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderSearch;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.JoinTable;
@@ -24,21 +26,19 @@ public class OrderRepository {
     }
 
 
-    // 주문 딘건 조회
+    // 주문 단건 조회
     public Order findOne(Long id) {
         return em.find(Order.class, id);
     }
 
-    // 주문 다건 조회(주문 조건 동적 생성)
-    public List<Order> findAll(OrderSearch orderSearch) {
-
-        /**
-         * JPQL 문자열 활용
-         */
-/*
-        String jpql = "select o from Order o join o.member m";
+    /**
+     * 주문 다건 조회(문자열 활용 동적 쿼리)
+     */
+    public List<Order> findAllByString(OrderSearch orderSearch) {
+        //language=JPAQL
+        String jpql = "select o From Order o join o.member m";
         boolean isFirstCondition = true;
-
+        //주문 상태 검색
         if (orderSearch.getOrderStatus() != null) {
             if (isFirstCondition) {
                 jpql += " where";
@@ -48,40 +48,53 @@ public class OrderRepository {
             }
             jpql += " o.status = :status";
         }
-*/
+        //회원 이름 검색
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            if (isFirstCondition) {
+                jpql += " where";
+                isFirstCondition = false;
+            } else {
+                jpql += " and";
+            }
+            jpql += " m.name like :name";
+        }
+        TypedQuery<Order> query = em.createQuery(jpql, Order.class)
+                .setMaxResults(1000); //최대 1000건
+        if (orderSearch.getOrderStatus() != null) {
+            query = query.setParameter("status", orderSearch.getOrderStatus());
+        }
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            query = query.setParameter("name", orderSearch.getMemberName());
+        }
+        return query.getResultList();
+    }
 
-        /**
-         * JPA에서 표준으로 제공하는 findAllByCriteria
-         * - 어떤 쿼리가 생성될지 직관적이지 않아 유지보수가 힘듦
-         */
-/*
+    /**
+     * 주문 다건 조회
+     * - JPA에서 표준으로 제공하는 CriteriaBuilder
+     * - 어떤 쿼리가 생성될지 직관적이지 않아 유지보수가 힘듦
+     */
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> o = cq.from(Order.class);
-        Join<Object, Object> m = o.join("member", JoinType.INNER);
-
+        Join<Order, Member> m = o.join("member", JoinType.INNER); //회원과 조인
         List<Predicate> criteria = new ArrayList<>();
+        //주문 상태 검색
         if (orderSearch.getOrderStatus() != null) {
-            Predicate status = cb.equal(o.get("status"), orderSearch.getOrderStatus());
+            Predicate status = cb.equal(o.get("status"),
+                    orderSearch.getOrderStatus());
             criteria.add(status);
         }
-        if (orderSearch.getMemberName() != null) {
-            Predicate name = cb.like(m.get("name"), "%" + orderSearch.getMemberName() + "%");
+        //회원 이름 검색
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            Predicate name =
+                    cb.like(m.<String>get("name"), "%" +
+                            orderSearch.getMemberName() + "%");
             criteria.add(name);
         }
-
         cq.where(cb.and(criteria.toArray(new Predicate[criteria.size()])));
-        TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000);
+        TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000); //최대 1000건
         return query.getResultList();
-*/
-
-        // TODO: querydsl 사용
-        return em.createQuery("select o from Order o join o.member m" +
-                        " where o.status = :status" +
-                        " and m.name like :name", Order.class)
-                .setParameter("status", orderSearch.getOrderStatus())
-                .setParameter("name", orderSearch.getMemberName())
-                .setMaxResults(1000)
-                .getResultList();
     }
 }

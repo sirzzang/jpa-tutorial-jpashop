@@ -70,8 +70,6 @@ public class ItemController {
     @PostMapping("/items/{itemId}/edit")
     public String updateItem(@PathVariable Long itemId, @ModelAttribute("form") BookForm form) {
 
-
-
         // 필요한 데이터만 받아서 수정하는 것이 더 나은 설계
         itemService.updateItem(itemId,
                 form.getName(), form.getPrice(), form.getStockQuantity());
